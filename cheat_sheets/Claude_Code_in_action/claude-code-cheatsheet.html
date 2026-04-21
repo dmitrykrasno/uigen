@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code — Cheat Sheet</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f5ede0;
+    padding: 20px;
+    font-size: 12px;
+    color: #1a1a1a;
+  }
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #f5ede0;
+  }
+
+  /* ── Title ── */
+  .title-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 12px 20px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    color: #f5ede0;
+  }
+  .title-bar .logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: #e8914a;
+    font-style: italic;
+    flex-shrink: 0;
+  }
+  .title-bar h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #f5ede0;
+    text-transform: uppercase;
+  }
+  .title-bar .subtitle {
+    margin-left: auto;
+    font-size: 11px;
+    color: #aaa;
+    white-space: nowrap;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    /* prevent any child from overflowing */
+    min-width: 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: #fff8f0;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e0d4c0;
+    break-inside: avoid;
+    min-width: 0;       /* critical: allow grid cell to shrink */
+    overflow: hidden;   /* clip anything that tries to escape */
+  }
+
+  .card.span2 { grid-column: span 2; }
+  .card.span3 { grid-column: span 3; }
+  .card.span5 { grid-column: span 5; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid currentColor;
+  }
+  .badge {
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 11px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+  }
+
+  /* Colors */
+  .c-orange { color: #d4600a; border-color: #e8914a; }
+  .c-orange .badge { background: #e8914a; }
+  .c-teal   { color: #1a6e63; border-color: #3a9e8e; }
+  .c-teal .badge { background: #3a9e8e; }
+  .c-rose   { color: #b0284e; border-color: #e05070; }
+  .c-rose .badge { background: #e05070; }
+  .c-purple { color: #6b3aa0; border-color: #9b5dd5; }
+  .c-purple .badge { background: #9b5dd5; }
+  .c-blue   { color: #1a4d8a; border-color: #4a7eb5; }
+  .c-blue .badge { background: #4a7eb5; }
+  .c-green  { color: #2a6e2a; border-color: #5a9e5a; }
+  .c-green .badge { background: #5a9e5a; }
+  .c-amber  { color: #7a5000; border-color: #c49020; }
+  .c-amber .badge { background: #c49020; }
+  .c-indigo { color: #2a3a8a; border-color: #5560c8; }
+  .c-indigo .badge { background: #5560c8; }
+
+  /* Content */
+  ul { list-style: none; padding: 0; }
+  ul li { padding: 2px 0 2px 14px; position: relative; line-height: 1.4; }
+  ul li::before { content: '→'; position: absolute; left: 0; color: #999; font-size: 10px; top: 3px; }
+
+  h3 {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #555;
+    margin: 8px 0 3px;
+    letter-spacing: 0.4px;
+  }
+  h3:first-child { margin-top: 0; }
+
+  p { line-height: 1.5; margin-bottom: 5px; }
+  p:last-child { margin-bottom: 0; }
+
+  code {
+    background: #1a1a1a;
+    color: #e8914a;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 10px;
+    word-break: break-all;    /* prevent inline code overflow */
+  }
+
+  pre {
+    background: #1a1a1a;
+    color: #c8e0c0;
+    padding: 7px 9px;
+    border-radius: 6px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 9.5px;
+    line-height: 1.45;
+    /* key fix: wrap instead of scroll */
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: hidden;
+    margin-top: 5px;
+  }
+  pre .key { color: #7ec8e3; }
+  pre .str { color: #f0c080; }
+  pre .cmt { color: #666; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 4px;
+    font-size: 11px;
+    table-layout: fixed;   /* critical: prevent table cells from expanding card */
+  }
+  th {
+    text-align: left;
+    padding: 4px 6px;
+    background: #e8d8c0;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #555;
+  }
+  td {
+    padding: 3px 6px;
+    border-bottom: 1px solid #e8d8c0;
+    vertical-align: top;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow: hidden;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .kbd {
+    display: inline-block;
+    background: #2a2a2a;
+    color: #f0e0c8;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 600;
+    border-bottom: 2px solid #444;
+    white-space: nowrap;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 2px;
+    letter-spacing: 0.3px;
+  }
+  .tag-pre  { background: #fde8d0; color: #b04010; }
+  .tag-post { background: #d0e8fd; color: #1040b0; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    min-width: 0;
+  }
+  .two-col > * { min-width: 0; }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    min-width: 0;
+  }
+  .three-col > * { min-width: 0; }
+
+  .tip {
+    background: #fef9e8;
+    border-left: 3px solid #c49020;
+    padding: 4px 7px;
+    border-radius: 0 4px 4px 0;
+    margin-top: 6px;
+    font-size: 10.5px;
+    line-height: 1.4;
+    color: #5a4000;
+  }
+
+  /* hook-type table: tag column fixed width */
+  .hook-table { table-layout: fixed; }
+  .hook-table td:first-child { width: 38%; }
+  .hook-table td .tag { display: inline; }
+
+  @media print {
+    body { padding: 0; background: white; }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="title-bar">
+    <div class="logo">✦</div>
+    <h1>Claude Code — Cheat Sheet</h1>
+    <div class="subtitle">Course: Claude Code in Action · Stephen Grider (Anthropic)</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- 1. What is Claude Code? -->
+    <div class="card span2 c-orange">
+      <div class="card-header"><div class="badge">1</div><h2>What is Claude Code?</h2></div>
+      <p>Terminal-based AI coding assistant. Core strength: Claude (Opus / Sonnet / Haiku) excels at <strong>tool use</strong> — knowing which tools to call, when, and in clever combinations. Better tool use = handles more complex tasks, better security (no full codebase sent to external servers), and easy extensibility.</p>
+      <svg viewBox="0 0 620 172" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:172px;margin:6px 0">
+        <defs>
+          <marker id="ah" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="#888"/>
+          </marker>
+        </defs>
+        <text x="68" y="11" text-anchor="middle" font-style="italic" font-size="9" font-family="Georgia,serif" fill="#666">Task</text>
+        <rect x="8" y="15" width="120" height="82" rx="8" fill="white" stroke="#c8c0b0" stroke-width="1.2"/>
+        <text x="68" y="34" text-anchor="middle" font-size="8.5" fill="#333">Got an error.</text>
+        <text x="68" y="46" text-anchor="middle" font-size="8.5" fill="#333">Find and fix the issue.</text>
+        <text x="68" y="58" text-anchor="middle" font-size="8" fill="#555">Here's the error:</text>
+        <text x="68" y="72" text-anchor="middle" font-size="7.5" font-style="italic" fill="#777">Cannot read property</text>
+        <text x="68" y="84" text-anchor="middle" font-size="7.5" font-style="italic" fill="#777">'records' of undefined</text>
+        <line x1="128" y1="56" x2="152" y2="56" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <rect x="154" y="22" width="106" height="68" rx="8" fill="white" stroke="#c0604a" stroke-width="2"/>
+        <text x="207" y="53" text-anchor="middle" font-weight="bold" font-size="11" fill="#1a1a1a">Language</text>
+        <text x="207" y="67" text-anchor="middle" font-weight="bold" font-size="11" fill="#1a1a1a">Model</text>
+        <rect x="154" y="122" width="106" height="52" rx="8" fill="white" stroke="#c4a830" stroke-width="1.8"/>
+        <text x="207" y="145" text-anchor="middle" font-weight="bold" font-size="10" fill="#1a1a1a">Set of</text>
+        <text x="207" y="158" text-anchor="middle" font-weight="bold" font-size="10" fill="#1a1a1a">tools</text>
+        <line x1="211" y1="91" x2="211" y2="120" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <line x1="203" y1="120" x2="203" y2="91" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <rect x="300" y="3" width="315" height="166" rx="10" fill="none" stroke="#b8b0a0" stroke-width="1.2"/>
+        <text x="457" y="2" text-anchor="middle" font-style="italic" font-size="10" font-family="Georgia,serif" fill="#666">Assistant</text>
+        <rect x="320" y="14" width="152" height="38" rx="8" fill="#d8cfa0"/>
+        <text x="396" y="38" text-anchor="middle" font-weight="bold" font-size="10.5" fill="#1a1a1a">Gather context</text>
+        <rect x="320" y="67" width="152" height="38" rx="8" fill="#c09060"/>
+        <text x="396" y="91" text-anchor="middle" font-weight="bold" font-size="10.5" fill="#1a1a1a">Formulate a plan</text>
+        <rect x="320" y="120" width="152" height="38" rx="8" fill="#a04030"/>
+        <text x="396" y="144" text-anchor="middle" font-weight="bold" font-size="10.5" fill="white">Take an action</text>
+        <line x1="396" y1="52" x2="396" y2="65" stroke="#555" stroke-width="1.2" marker-end="url(#ah)"/>
+        <line x1="396" y1="105" x2="396" y2="118" stroke="#555" stroke-width="1.2" marker-end="url(#ah)"/>
+        <line x1="260" y1="48" x2="318" y2="30" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <line x1="260" y1="56" x2="318" y2="86" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <line x1="260" y1="64" x2="318" y2="139" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <path d="M 484 18 C 514 6, 514 158, 484 142" fill="none" stroke="#888" stroke-width="1.2" marker-end="url(#ah)"/>
+        <text x="556" y="88" text-anchor="middle" font-style="italic" font-size="10" font-family="Georgia,serif" fill="#666">Iterate</text>
+      </svg>
+      <div class="two-col" style="margin-top:4px">
+        <div>
+          <h3>Why tool use matters</h3>
+          <ul>
+            <li>LLMs alone only produce text</li>
+            <li>Tools = read/write files, run commands, web</li>
+            <li>Better tool use → handles harder tasks</li>
+            <li>No full codebase sent to outside servers</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Agentic loop</h3>
+          <ul>
+            <li>Gather context (read files, search)</li>
+            <li>Formulate a plan</li>
+            <li>Take action (edit, run commands)</li>
+            <li>Iterate until done</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Installation -->
+    <div class="card span2 c-teal">
+      <div class="card-header"><div class="badge">2</div><h2>Installation</h2></div>
+      <table>
+        <tr><th>Platform</th><th>Command</th></tr>
+        <tr><td>macOS (Homebrew)</td><td><code>brew install --cask claude-code</code></td></tr>
+        <tr><td>macOS / Linux / WSL</td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code></td></tr>
+        <tr><td>Windows CMD</td><td><code>curl -fsSL https://claude.ai/install.cmd -o i.cmd &amp;&amp; i.cmd</code></td></tr>
+      </table>
+      <div class="tip">Run <code>claude</code> after install → prompted to authenticate. Docs: <strong>code.claude.com/docs/en/quickstart</strong></div>
+      <h3 style="margin-top:8px">Add MCP server</h3>
+      <code>claude mcp add &lt;name&gt; &lt;start-command&gt;</code>
+    </div>
+
+    <!-- 3. Default Tools -->
+    <div class="card c-green">
+      <div class="card-header"><div class="badge">3</div><h2>Default Tools</h2></div>
+      <ul>
+        <li>Read / Write files</li>
+        <li>Edit / MultiEdit</li>
+        <li>Bash commands</li>
+        <li>Grep / Glob search</li>
+        <li>Web fetch</li>
+        <li>TodoWrite (task list)</li>
+        <li>Computer use</li>
+      </ul>
+      <div class="tip">Ask Claude: "list all tool names you have" — shows MCP tools too.</div>
+    </div>
+
+    <!-- 4. CLAUDE.md -->
+    <div class="card span2 c-blue">
+      <div class="card-header"><div class="badge">4</div><h2>CLAUDE.md Context Files</h2></div>
+      <p>Read on <em>every</em> request — persistent project context for Claude.</p>
+      <table>
+        <tr><th>Level</th><th>File</th><th>Shared?</th></tr>
+        <tr><td>Project</td><td><code>CLAUDE.md</code></td><td>✅ commit to git</td></tr>
+        <tr><td>Local</td><td><code>CLAUDE.local.md</code></td><td>❌ personal</td></tr>
+        <tr><td>Global</td><td><code>~/.claude/CLAUDE.md</code></td><td>❌ all projects</td></tr>
+      </table>
+      <h3>Generate with /init</h3>
+      <p>Claude reads whole codebase → writes <code>CLAUDE.md</code> with purpose, architecture, key commands, critical files.</p>
+      <p><span class="kbd">Enter</span> accept once · <span class="kbd">Shift Tab</span> auto-accept all writes</p>
+    </div>
+
+    <!-- 5. # and @ -->
+    <div class="card span2 c-rose">
+      <div class="card-header"><div class="badge">5</div><h2>Context: # Memory &amp; @ Files</h2></div>
+      <div class="two-col">
+        <div>
+          <h3># — Memory mode</h3>
+          <p>Type <code>#</code> → write instruction → pick which CLAUDE.md to update. Claude merges intelligently.</p>
+          <ul>
+            <li>Fix repeated mistakes permanently</li>
+            <li>Combine with <span class="kbd">Esc</span> to catch errors fast</li>
+          </ul>
+        </div>
+        <div>
+          <h3>@ — File reference</h3>
+          <p>Mention file in prompt or CLAUDE.md → contents auto-included in every request.</p>
+          <ul>
+            <li>Prompt: <code>@src/schema.prisma</code></li>
+            <li>CLAUDE.md: pin DB schema so Claude always knows your data model</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Keyboard Shortcuts -->
+    <div class="card c-amber">
+      <div class="card-header"><div class="badge">6</div><h2>Keyboard Shortcuts</h2></div>
+      <table>
+        <tr><td><span class="kbd">Esc</span></td><td>Interrupt Claude</td></tr>
+        <tr><td><span class="kbd">Esc Esc</span></td><td>Rewind — pick earlier message</td></tr>
+        <tr><td><span class="kbd">Ctrl+V</span></td><td>Paste screenshot into prompt</td></tr>
+        <tr><td><span class="kbd">Shift Tab</span></td><td>Toggle Plan mode / auto-accept</td></tr>
+        <tr><td><span class="kbd">#</span></td><td>Memory mode</td></tr>
+        <tr><td><span class="kbd">@</span></td><td>Reference a file</td></tr>
+      </table>
+    </div>
+
+    <!-- 7. Slash Commands -->
+    <div class="card c-purple">
+      <div class="card-header"><div class="badge">7</div><h2>Slash Commands</h2></div>
+      <table>
+        <tr><td><code>/init</code></td><td>Generate CLAUDE.md</td></tr>
+        <tr><td><code>/compact</code></td><td>Summarize (keep knowledge)</td></tr>
+        <tr><td><code>/clear</code></td><td>Wipe conversation</td></tr>
+        <tr><td><code>/hooks</code></td><td>Manage hooks</td></tr>
+        <tr><td><code>/install-github-app</code></td><td>GitHub setup</td></tr>
+        <tr><td><code>/&lt;name&gt;</code></td><td>Run custom command</td></tr>
+      </table>
+      <div class="tip"><strong>/compact</strong> between tasks · <strong>/clear</strong> for unrelated topic</div>
+    </div>
+
+    <!-- 8. Making Changes -->
+    <div class="card span2 c-teal">
+      <div class="card-header"><div class="badge">8</div><h2>Making Changes — Boosting Intelligence</h2></div>
+      <div class="two-col">
+        <div>
+          <h3>Plan Mode <span class="kbd">Shift Tab ×2</span></h3>
+          <ul>
+            <li>Claude reads more files, creates detailed plan</li>
+            <li>Shows plan before writing any code</li>
+            <li>Redirect if it missed something</li>
+            <li>Best for: multi-step, wide codebase changes</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Extended Thinking</h3>
+          <ul>
+            <li>Trigger phrases set token budget</li>
+            <li>"think about…" / "<strong>ultra-think</strong> about…"</li>
+            <li>Best for: tricky logic, hard bugs (depth)</li>
+            <li>Use Plan + Think together for complex tasks</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tip"><span class="kbd">Ctrl+V</span> paste screenshot to show Claude exactly what to change · Ask Claude to commit — it writes descriptive message automatically.</div>
+    </div>
+
+    <!-- 9. Controlling Context -->
+    <div class="card c-orange">
+      <div class="card-header"><div class="badge">9</div><h2>Controlling Context</h2></div>
+      <h3>Interrupt &amp; fix</h3>
+      <ul>
+        <li><span class="kbd">Esc</span> stops Claude mid-task</li>
+        <li><code>#</code> adds memory to fix the mistake</li>
+        <li>Error won't repeat</li>
+      </ul>
+      <h3>Rewind</h3>
+      <ul>
+        <li><span class="kbd">Esc Esc</span> shows sent messages</li>
+        <li>Branch from any earlier point</li>
+        <li>Drops debug noise, keeps learned context</li>
+      </ul>
+      <div class="tip">Too much irrelevant context → lower quality. Provide just enough.</div>
+    </div>
+
+    <!-- 10. Custom Commands -->
+    <div class="card span2 c-green">
+      <div class="card-header"><div class="badge">10</div><h2>Custom Commands</h2></div>
+      <p>Automate repeated tasks as your own <code>/commands</code>.</p>
+      <div class="two-col">
+        <div>
+          <h3>Create a command</h3>
+          <ol style="list-style:decimal;padding-left:16px;line-height:1.8">
+            <li>Create <code>.claude/commands/</code></li>
+            <li>Add <code>audit.md</code> with instructions</li>
+            <li>Restart Claude Code</li>
+            <li>Run <code>/audit</code></li>
+          </ol>
+        </div>
+        <div>
+          <h3>With arguments</h3>
+          <p>Put <code>$ARGUMENTS</code> in the file:</p>
+          <code>/write-test src/auth/auth.ts</code>
+          <p style="margin-top:5px">Any string gets substituted at <code>$ARGUMENTS</code>.</p>
+          <div class="tip">Examples: /audit · /write-test · /security-review</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. MCP Servers -->
+    <div class="card span2 c-indigo">
+      <div class="card-header"><div class="badge">11</div><h2>MCP Servers</h2></div>
+      <p>Extend Claude Code with new tools. Servers run locally or remotely.</p>
+      <div class="two-col">
+        <div>
+          <h3>Install</h3>
+          <pre>claude mcp add playwright \
+  npx @playwright/mcp@latest</pre>
+          <h3>Popular</h3>
+          <ul>
+            <li><strong>Playwright</strong> — browser control</li>
+            <li><strong>GitHub</strong> — PRs, issues</li>
+            <li><strong>Linear</strong> — project mgmt</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Skip permission pop-ups</h3>
+          <p><code>.claude/settings.local.json</code> → <code>allow</code>:</p>
+          <pre><span class="str">"mcp__playwright"</span>
+<span class="cmt">// double underscore</span></pre>
+          <div class="tip">GitHub Actions: list every individual tool name — no wildcards allowed.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. GitHub Integration -->
+    <div class="card c-rose">
+      <div class="card-header"><div class="badge">12</div><h2>GitHub Integration</h2></div>
+      <h3>Setup</h3>
+      <p><code>/install-github-app</code> → wizard → two Actions created:</p>
+      <ul>
+        <li><strong>PR review</strong> — auto on every PR</li>
+        <li><strong>Mention</strong> — <code>@Claude</code> in issue/PR</li>
+      </ul>
+      <h3>Example win</h3>
+      <ul>
+        <li>Catches PII exposure in Terraform/S3</li>
+        <li>Shows exact data flow path</li>
+      </ul>
+      <div class="tip">Customize YAML: add MCP servers, start dev server, extra instructions.</div>
+    </div>
+
+    <!-- 13. Hooks: All Types — restructured as single table -->
+    <div class="card span3 c-purple">
+      <div class="card-header"><div class="badge">13</div><h2>Hooks — All Types</h2></div>
+      <p>Shell commands that run at specific lifecycle points. Each receives JSON on <strong>stdin</strong>. Configure via <code>/hooks</code> or edit settings JSON directly.</p>
+      <table class="hook-table" style="margin-top:8px">
+        <tr>
+          <th style="width:36%">Hook</th>
+          <th style="width:10%">Cat.</th>
+          <th>When it fires</th>
+        </tr>
+        <tr><td><span class="tag tag-pre">Pre</span> <code>PreToolUse</code></td><td>Tool</td><td>Before tool runs — can <strong>block</strong> (exit&nbsp;2)</td></tr>
+        <tr><td><span class="tag tag-post">Post</span> <code>PostToolUse</code></td><td>Tool</td><td>After tool runs — provide feedback to Claude</td></tr>
+        <tr><td><code>SessionStart</code></td><td>Session</td><td>Session begins or resumes</td></tr>
+        <tr><td><code>SessionEnd</code></td><td>Session</td><td>Session ends</td></tr>
+        <tr><td><code>UserPromptSubmit</code></td><td>Session</td><td>Before Claude processes user prompt</td></tr>
+        <tr><td><code>PreCompact</code></td><td>Session</td><td>Before /compact runs (manual or auto)</td></tr>
+        <tr><td><code>Stop</code></td><td>Agent</td><td>Claude finishes responding</td></tr>
+        <tr><td><code>SubagentStop</code></td><td>Agent</td><td>A subagent (Task) finishes</td></tr>
+        <tr><td><code>Notification</code></td><td>Agent</td><td>Permission needed or idle for 60 s</td></tr>
+      </table>
+      <div class="tip"><strong>Debug:</strong> PostToolUse matcher <code>"*"</code> + command <code>jq . &gt; post-log.json</code> → inspect exact stdin for any tool call.</div>
+    </div>
+
+    <!-- 14. Hook Config & Exit Codes -->
+    <div class="card span2 c-amber">
+      <div class="card-header"><div class="badge">14</div><h2>Hook Config &amp; Exit Codes</h2></div>
+      <h3>settings.local.json</h3>
+      <pre>{
+  <span class="key">"PreToolUse"</span>: [{
+    <span class="key">"matcher"</span>: <span class="str">"Read|Grep"</span>,
+    <span class="key">"hooks"</span>: [{ <span class="key">"type"</span>: <span class="str">"command"</span>,
+      <span class="key">"command"</span>: <span class="str">"node ./hooks/env_guard.js"</span> }]
+  }],
+  <span class="key">"PostToolUse"</span>: [{
+    <span class="key">"matcher"</span>: <span class="str">"Write|Edit|MultiEdit"</span>,
+    <span class="key">"hooks"</span>: [{ <span class="key">"type"</span>: <span class="str">"command"</span>,
+      <span class="key">"command"</span>: <span class="str">"node ./hooks/tsc.js"</span> }]
+  }]
+}</pre>
+      <div class="two-col" style="margin-top:8px">
+        <div>
+          <h3>Stdin JSON structure</h3>
+          <pre>{
+  <span class="key">"hook_event_name"</span>: <span class="str">"PreToolUse"</span>,
+  <span class="key">"tool_name"</span>: <span class="str">"Read"</span>,
+  <span class="key">"tool_input"</span>: {
+    <span class="key">"file_path"</span>: <span class="str">"/path/.env"</span>
+  }
+}</pre>
+        </div>
+        <div>
+          <h3>Exit codes</h3>
+          <table>
+            <tr><th>Code</th><th>Meaning</th></tr>
+            <tr><td><code>0</code></td><td>Allow tool call</td></tr>
+            <tr><td><code>2</code></td><td>Block (Pre only) + stderr → feedback to Claude</td></tr>
+          </table>
+          <div class="tip">Use <code>console.error()</code> not <code>log()</code> — stderr is what Claude sees.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15. Useful Hook Examples -->
+    <div class="card span3 c-blue">
+      <div class="card-header"><div class="badge">15</div><h2>Useful Hook Examples</h2></div>
+      <div class="three-col">
+        <div>
+          <h3><span class="tag tag-pre">Pre</span> .env Guard</h3>
+          <p><strong>Block Claude from reading <code>.env</code></strong></p>
+          <pre><span class="cmt">// hooks/env_guard.js
+// matcher: "Read|Grep"</span>
+const d = JSON.parse(stdin);
+const p = d.tool_input?.file_path
+       || d.tool_input?.path || '';
+
+if (p.includes('.env')) {
+  console.error(
+    'Cannot read .env file.');
+  process.exit(2);
+}</pre>
+        </div>
+        <div>
+          <h3><span class="tag tag-post">Post</span> TypeScript Checker</h3>
+          <p><strong>Auto-fix type errors after edits</strong></p>
+          <pre><span class="cmt">// hooks/tsc.js
+// matcher: "Write|Edit|MultiEdit"</span>
+const r = exec('tsc --noEmit');
+
+if (r.exitCode !== 0) {
+  console.error(r.stdout);
+  process.exit(2);
+  <span class="cmt">// Claude gets errors,
+  // fixes call sites</span>
+}</pre>
+          <p style="margin-top:5px">For untyped languages: run tests instead.</p>
+        </div>
+        <div>
+          <h3><span class="tag tag-post">Post</span> Duplicate Detector</h3>
+          <p><strong>Prevent duplicate queries via SDK</strong></p>
+          <pre><span class="cmt">// hooks/query_hook.js
+// matcher: "Write|Edit" on queries/</span>
+import { query } from
+  '@anthropic-ai/claude-code';
+
+const r = await query({
+  prompt: 'Similar query exist?'
+});
+if (r.hasDuplicate) {
+  console.error(r.message);
+  process.exit(2);
+}</pre>
+          <p style="margin-top:5px">Watch only key dirs to limit cost.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 16. Claude Code SDK -->
+    <div class="card span2 c-green">
+      <div class="card-header"><div class="badge">16</div><h2>Claude Code SDK</h2></div>
+      <p>Use Claude Code programmatically — same tools as terminal.</p>
+      <div class="two-col">
+        <div>
+          <h3>TypeScript</h3>
+          <pre>import { query } from
+  '@anthropic-ai/claude-code';
+
+const result = await query({
+  prompt: 'Review src/queries
+    for duplicate functions',
+  options: {
+    allowTools: ['Edit']
+    <span class="cmt">// default: read-only</span>
+  }
+});</pre>
+        </div>
+        <div>
+          <h3>Options</h3>
+          <ul>
+            <li>CLI: <code>claude --print "task"</code></li>
+            <li>TS: <code>@anthropic-ai/claude-code</code></li>
+            <li>Python: <code>anthropic-claude-code</code></li>
+          </ul>
+          <h3>Permissions</h3>
+          <ul>
+            <li>Default: read-only</li>
+            <li>Add write: <code>allowTools: ['Edit']</code></li>
+            <li>Or via <code>.claude/settings.json</code></li>
+          </ul>
+          <h3>Best for</h3>
+          <ul>
+            <li>Hooks needing AI reasoning</li>
+            <li>Scripts &amp; pipelines</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 17. Settings Files -->
+    <div class="card c-indigo">
+      <div class="card-header"><div class="badge">17</div><h2>Settings Files</h2></div>
+      <table>
+        <tr><th>Scope</th><th>Path</th></tr>
+        <tr><td>Global</td><td><code>~/.claude/settings.json</code></td></tr>
+        <tr><td>Project shared</td><td><code>.claude/settings.json</code></td></tr>
+        <tr><td>Project personal</td><td><code>.claude/settings.local.json</code></td></tr>
+      </table>
+      <div class="tip"><strong>Use absolute paths</strong> for hook scripts (security). Share via <code>settings.example.json</code> with <code>$PWD</code> placeholder — replace at setup time.</div>
+    </div>
+
+    <!-- 18. Pro Tips -->
+    <div class="card span2 c-orange">
+      <div class="card-header"><div class="badge">18</div><h2>Pro Tips &amp; Best Practices</h2></div>
+      <div class="two-col">
+        <div>
+          <h3>Context management</h3>
+          <ul>
+            <li><code>/init</code> in every new project</li>
+            <li>Commit <code>CLAUDE.md</code> — team shares context</li>
+            <li>Pin critical files (schema, API contracts) with <code>@</code></li>
+            <li><code>/compact</code> between tasks · <code>/clear</code> for new topic</li>
+          </ul>
+          <h3>Getting best results</h3>
+          <ul>
+            <li><span class="kbd">Ctrl+V</span> screenshots for UI tasks</li>
+            <li>Plan mode for multi-step / risky changes</li>
+            <li>"ultra-think about…" for hard logic problems</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Hooks strategy</h3>
+          <ul>
+            <li>TypeScript: PostToolUse → <code>tsc --noEmit</code></li>
+            <li>Any language: PostToolUse → run tests</li>
+            <li>Secrets: PreToolUse guard on <code>.env</code></li>
+            <li>Watch only key dirs — controls cost</li>
+          </ul>
+          <h3>Extensibility</h3>
+          <ul>
+            <li>Add MCP servers for your stack</li>
+            <li>Build <code>/commands</code> for team workflows</li>
+            <li>GitHub integration → automate PR reviews</li>
+            <li>Stay current: <strong>code.claude.com</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+</div><!-- /page -->
+</body>
+</html>
